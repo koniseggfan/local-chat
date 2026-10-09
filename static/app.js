@@ -160,6 +160,12 @@ if (document.body.classList.contains('login-page')) {
 
   (async () => {
     try {
+      const account = await api('/api/me');
+      if (!account.ai_enabled) {
+        $('.online-pill').classList.add('needs-setup');
+        $('.online-pill').innerHTML = '<span></span> AI setup needed';
+        $('.composer-note').textContent = 'Full AI replies need an OpenAI API key in the hosting settings. Wikipedia lookups still work.';
+      }
       if (new URLSearchParams(window.location.search).has('start')) {
         await newChat();
       } else {

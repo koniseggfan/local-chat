@@ -51,6 +51,8 @@ a{color:inherit}
 .chat-heading h1{font:700 1.15rem Manrope,system-ui,sans-serif;letter-spacing:-.025em;margin:0;color:#f4f7fc}
 .online-pill{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--line);border-radius:99px;color:#aab8cc;font-size:.78rem;background:#0c1421}
 .online-pill span{width:7px;height:7px;border-radius:50%;background:#49d99e;box-shadow:0 0 12px #49d99e99}
+.online-pill.needs-setup{color:#e8c78e;border-color:#705a2d;background:#1e1a12}
+.online-pill.needs-setup span{background:#edb84a;box-shadow:0 0 12px #edb84a99}
 .mobile-brand{display:none;width:136px;background:#050505;border-radius:7px;overflow:hidden}
 .mobile-brand img{width:100%;display:block}
 #chat{flex:1;min-height:0;overflow-y:auto;padding:34px 0;display:flex;flex-direction:column;gap:22px;scroll-behavior:smooth}

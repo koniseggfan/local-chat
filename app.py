@@ -77,7 +77,7 @@ def login():
 @app.post("/api/logout")
 def logout():session.clear();return jsonify(ok=True)
 @app.get("/api/me")
-def me():return jsonify(username=session.get("username"))
+def me():return jsonify(username=session.get("username"),ai_enabled=OPENAI_CLIENT is not None)
 @app.get("/api/chats")
 def chats():
  if(x:=need()):return x
