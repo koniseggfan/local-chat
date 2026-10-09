@@ -1,1 +1,60 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vortex AI</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body><div id="app"><aside><div class="brand">◉ Vortex AI</div><button id="new-chat" class="new">＋ New chat</button><div id="chat-list"></div><div class="side-bottom"><button id="sign-out" class="plain">⇥ Sign out</button></div></aside><main><header><div><p class="eyebrow">VORTEX AI</p><h1 id="chat-title">New chat</h1></div><button id="research-toggle" class="research">Search the web: Off</button></header><section id="chat"></section><form id="question-form"><textarea id="question" rows="1" maxlength="1000" required placeholder="Message Vortex AI…"></textarea><button>Send ↑</button></form></main></div><template id="user-template"><article class="message user"><div class="avatar">You</div><p></p></article></template><template id="answer-template"><article class="message answer"><div class="avatar">AI</div><div><p class="answer-text"></p><div class="sources"><b>Sources</b><ul></ul></div></div></article></template><script src="{{ url_for('static', filename='app.js') }}"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d18">
+  <title>Vortex AI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+</head>
+<body class="chat-page">
+  <div id="app">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Vortex AI home">
+        <img src="{{ url_for('static', filename='vortex-logo.webp') }}" alt="Vortex AI">
+      </a>
+      <button id="new-chat" class="new-chat"><span aria-hidden="true">＋</span> New chat</button>
+      <p class="section-label">YOUR CHATS</p>
+      <nav id="chat-list" aria-label="Your conversations"></nav>
+      <div class="side-bottom">
+        <button id="sign-out" class="sign-out"><span aria-hidden="true">↗</span> Sign out</button>
+      </div>
+    </aside>
+    <main class="workspace">
+      <header class="topbar">
+        <a class="mobile-brand" href="/" aria-label="Vortex AI home">
+          <img src="{{ url_for('static', filename='vortex-logo.webp') }}" alt="Vortex AI">
+        </a>
+        <div class="chat-heading">
+          <p class="eyebrow">YOUR AI SPACE</p>
+          <h1 id="chat-title">New chat</h1>
+        </div>
+        <div class="online-pill"><span></span> Vortex is ready</div>
+      </header>
+      <section id="chat" aria-live="polite" aria-label="Conversation">
+        <div class="welcome">
+          <div class="welcome-mark" aria-hidden="true">✦</div>
+          <p class="eyebrow">VORTEX AI</p>
+          <h2>What’s on your mind?</h2>
+          <p>Ask anything, explore an idea, or get help with something you’re working on.</p>
+          <div class="welcome-hint"><span aria-hidden="true">⌕</span> Web and Wikipedia sources are checked automatically when useful.</div>
+        </div>
+      </section>
+      <div class="composer-wrap">
+        <form id="question-form">
+          <textarea id="question" rows="1" maxlength="1000" required placeholder="Message Vortex AI…" aria-label="Message Vortex AI"></textarea>
+          <button id="send-button" type="submit" aria-label="Send message">Send <span aria-hidden="true">↑</span></button>
+        </form>
+        <p class="composer-note">Vortex can make mistakes. Check important information with the sources.</p>
+      </div>
+    </main>
+  </div>
+  <template id="user-template">
+    <article class="message user"><div class="avatar user-avatar">You</div><div class="message-body"><p></p></div></article>
+  </template>
+  <template id="answer-template">
+    <article class="message answer"><div class="avatar ai-avatar">✦</div><div class="message-body"><p class="answer-text"></p><div class="sources"><b>Sources</b><ul></ul></div></div></article>
+  </template>
+  <script src="{{ url_for('static', filename='app.js') }}?v=4"></script>
+</body>
+</html>

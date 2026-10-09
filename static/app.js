@@ -1,1 +1,174 @@
-const $=s=>document.querySelector(s);async function api(u,o={}){const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o}),d=await r.json();if(!r.ok)throw Error(d.error);return d}if(document.body.classList.contains('login-page')){let login=true;const mode=()=>{$('#account-title').textContent=login?'Sign in':'Create account';$('#account-submit').textContent=login?'Sign in':'Create account';$('#account-mode').textContent=login?'Create account':'I already have an account'};mode();$('#account-mode').onclick=()=>{login=!login;mode()};$('#account-form').onsubmit=async e=>{e.preventDefault();try{await api(login?'/api/login':'/api/register',{method:'POST',body:JSON.stringify({username:$('#account-name').value.trim(),password:$('#account-password').value})});location='/chat'}catch(e){$('#account-intro').textContent=e.message}}}else{const chat=$('#chat');let active,webOn=false;function node(role,text,s=[]){const t=$(role==='user'?'#user-template':'#answer-template').content.cloneNode(true);if(role==='user')t.querySelector('p').textContent=text;else{t.querySelector('.answer-text').textContent=text;const b=t.querySelector('.sources');if(!s.length)b.remove();else s.forEach(x=>{const a=document.createElement('a'),li=document.createElement('li');a.href=x.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=x.title;li.append(a);b.querySelector('ul').append(li)})}return t}async function select(c){active=c.id;$('#chat-title').textContent=c.title;const data=await api('/api/chats/'+c.id);chat.innerHTML='';data.messages.forEach(m=>chat.append(node(m.role,m.text,m.sources)))}async function refresh(selectFirst=false){const all=await api('/api/chats'),list=$('#chat-list');list.innerHTML='';all.forEach(c=>{const b=document.createElement('button');b.className='chat-item';b.textContent=c.title;b.onclick=()=>select(c);list.append(b)});if(selectFirst&&all[0])await select(all[0])}async function newChat(){const c=await api('/api/chats',{method:'POST'});active=c.id;await refresh();await select(c)}$('#new-chat').onclick=newChat;$('#sign-out').onclick=async()=>{await api('/api/logout',{method:'POST'});location='/login'};$('#research-toggle').onclick=()=>{webOn=!webOn;$('#research-toggle').textContent=`Search the web: ${webOn?'On':'Off'}`;$('#research-toggle').setAttribute('aria-pressed',String(webOn))};$('#question-form').onsubmit=async e=>{e.preventDefault();const q=$('#question').value.trim(),send=$('#question-form button');if(!q||!active||send.disabled)return;chat.append(node('user',q));$('#question').value='';send.disabled=true;send.textContent='Thinking…';chat.scrollTop=chat.scrollHeight;try{const d=await api(`/api/chats/${active}/ask`,{method:'POST',body:JSON.stringify({question:q,research:webOn})});chat.append(node('assistant',d.answer,d.sources));refresh();}catch(e){chat.append(node('assistant',e.message))}finally{send.disabled=false;send.textContent='Send ↑';chat.scrollTop=chat.scrollHeight}};newChat()}
+const $ = (selector) => document.querySelector(selector);
+
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+  return data;
+}
+
+if (document.body.classList.contains('login-page')) {
+  let login = true;
+  const mode = () => {
+    $('#account-title').textContent = login ? 'Sign in' : 'Create your account';
+    $('#account-submit').innerHTML = `${login ? 'Sign in' : 'Create account'} <span aria-hidden="true">→</span>`;
+    $('#account-mode').textContent = login ? 'New to Vortex? Create an account' : 'Already have an account? Sign in';
+    $('#account-password').autocomplete = login ? 'current-password' : 'new-password';
+    $('#account-intro').textContent = login
+      ? 'Your conversations are saved to your account.'
+      : 'Create an account to start chatting with Vortex AI.';
+  };
+  mode();
+  $('#account-mode').addEventListener('click', () => { login = !login; mode(); });
+  $('#account-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = $('#account-submit');
+    button.disabled = true;
+    button.textContent = login ? 'Signing in…' : 'Creating account…';
+    try {
+      await api(login ? '/api/login' : '/api/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: $('#account-name').value.trim(),
+          password: $('#account-password').value,
+        }),
+      });
+      window.location.replace('/chat?start=1');
+    } catch (error) {
+      $('#account-intro').textContent = error.message;
+      button.disabled = false;
+      mode();
+    }
+  });
+} else {
+  const chat = $('#chat');
+  let activeChatId;
+
+  function makeWelcome() {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'welcome';
+    wrapper.innerHTML = '<div class="welcome-mark" aria-hidden="true">✦</div><p class="eyebrow">VORTEX AI</p><h2>What’s on your mind?</h2><p>Ask anything, explore an idea, or get help with something you’re working on.</p><div class="welcome-hint"><span aria-hidden="true">⌕</span> Web and Wikipedia sources are checked automatically when useful.</div>';
+    return wrapper;
+  }
+
+  function makeMessage(role, text, sources = []) {
+    const template = $(role === 'user' ? '#user-template' : '#answer-template');
+    const fragment = template.content.cloneNode(true);
+    const article = fragment.querySelector('article');
+    if (role === 'user') {
+      article.querySelector('.message-body p').textContent = text;
+    } else {
+      article.querySelector('.answer-text').textContent = text;
+      const sourceBox = article.querySelector('.sources');
+      if (!sources.length) {
+        sourceBox.remove();
+      } else {
+        const list = sourceBox.querySelector('ul');
+        sources.forEach((source) => {
+          const link = document.createElement('a');
+          link.href = source.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = source.title;
+          const item = document.createElement('li');
+          item.append(link);
+          list.append(item);
+        });
+      }
+    }
+    return fragment;
+  }
+
+  async function selectChat(conversation) {
+    activeChatId = conversation.id;
+    $('#chat-title').textContent = conversation.title;
+    const data = await api(`/api/chats/${conversation.id}`);
+    chat.replaceChildren();
+    if (!data.messages.length) chat.append(makeWelcome());
+    data.messages.forEach((message) => chat.append(makeMessage(message.role, message.text, message.sources)));
+    await refreshChats();
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  async function refreshChats() {
+    const conversations = await api('/api/chats');
+    const list = $('#chat-list');
+    list.replaceChildren();
+    conversations.forEach((conversation) => {
+      const button = document.createElement('button');
+      button.className = `chat-item${conversation.id === activeChatId ? ' active' : ''}`;
+      button.textContent = conversation.title;
+      button.type = 'button';
+      button.addEventListener('click', () => selectChat(conversation));
+      list.append(button);
+    });
+    return conversations;
+  }
+
+  async function newChat() {
+    const conversation = await api('/api/chats', { method: 'POST' });
+    await selectChat(conversation);
+    $('#question').focus();
+  }
+
+  $('#new-chat').addEventListener('click', () => newChat().catch(showError));
+  $('#sign-out').addEventListener('click', async () => {
+    try {
+      await api('/api/logout', { method: 'POST' });
+      window.location.replace('/login');
+    } catch (error) {
+      showError(error);
+    }
+  });
+
+  function showError(error) {
+    chat.append(makeMessage('assistant', error.message || 'Something went wrong. Please try again.'));
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  $('#question-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const question = $('#question').value.trim();
+    const sendButton = $('#send-button');
+    if (!question || !activeChatId || sendButton.disabled) return;
+    chat.querySelector('.welcome')?.remove();
+    chat.append(makeMessage('user', question));
+    $('#question').value = '';
+    sendButton.disabled = true;
+    sendButton.innerHTML = 'Thinking…';
+    chat.scrollTop = chat.scrollHeight;
+    try {
+      const data = await api(`/api/chats/${activeChatId}/ask`, {
+        method: 'POST',
+        body: JSON.stringify({ question }),
+      });
+      chat.append(makeMessage('assistant', data.answer, data.sources));
+      await refreshChats();
+    } catch (error) {
+      showError(error);
+    } finally {
+      sendButton.disabled = false;
+      sendButton.innerHTML = 'Send <span aria-hidden="true">↑</span>';
+      chat.scrollTop = chat.scrollHeight;
+      $('#question').focus();
+    }
+  });
+
+  (async () => {
+    try {
+      if (new URLSearchParams(window.location.search).has('start')) {
+        await newChat();
+      } else {
+        const conversations = await refreshChats();
+        if (conversations.length) await selectChat(conversations[0]);
+        else await newChat();
+      }
+    } catch (error) {
+      showError(error);
+    }
+  })();
+}

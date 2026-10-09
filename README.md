@@ -1,6 +1,6 @@
 # Vortex AI
 
-A Flask chat app with user accounts, saved conversations, optional web search, and OpenAI-powered answers.
+A branded Vortex AI chat app with private accounts, saved conversations, automatic web and Wikipedia research, and OpenAI-powered answers.
 
 ## Run locally
 
@@ -12,7 +12,7 @@ $env:OPENAI_API_KEY = "your-api-key"
 python app.py
 ```
 
-Open `http://127.0.0.1:5000`. The app uses `gpt-6-luna` by default. Set `OPENAI_MODEL` to choose another supported model. Without `OPENAI_API_KEY`, full AI replies are disabled.
+Open `http://127.0.0.1:5000`. Vortex uses `gpt-6-luna` by default and searches the web when current facts or citations will help. Wikipedia excerpts are included as supporting references for research questions. Set `OPENAI_MODEL` to choose another supported model. Without `OPENAI_API_KEY`, Vortex can show Wikipedia results but full AI replies are unavailable.
 
 ## Deploy on Render
 

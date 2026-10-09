@@ -1,1 +1,35 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vortex AI — Sign in</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body class="login-page"><section class="gate"><div class="gate-card"><p class="eyebrow">VORTEX AI</p><h1 id="account-title">Sign in</h1><p id="account-intro">Sign in to your private account.</p><form id="account-form"><label>Username<input id="account-name" maxlength="40" required placeholder="Your username" autocomplete="username"></label><label>Password<input id="account-password" type="password" minlength="8" required placeholder="At least 8 characters" autocomplete="current-password"></label><button id="account-submit">Sign in</button></form><button id="account-mode" class="plain" type="button">Create account</button></div></section><script src="{{ url_for('static', filename='app.js') }}"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080d18">
+  <title>Vortex AI — Sign in</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+</head>
+<body class="login-page">
+  <main class="auth-layout">
+    <section class="auth-showcase" aria-label="Vortex AI">
+      <img class="auth-logo" src="{{ url_for('static', filename='vortex-logo.webp') }}" alt="Vortex AI logo">
+      <p class="auth-kicker">A clearer way to think</p>
+      <h2>Ideas move<br><span>faster here.</span></h2>
+      <p class="auth-description">Ask, explore, and create with Vortex AI. Useful web and Wikipedia sources appear when they help.</p>
+    </section>
+    <section class="gate-card">
+      <p class="eyebrow">WELCOME TO VORTEX</p>
+      <h1 id="account-title">Sign in</h1>
+      <p id="account-intro" class="account-intro">Your conversations are saved to your account.</p>
+      <form id="account-form">
+        <label for="account-name">Username</label>
+        <input id="account-name" maxlength="40" required placeholder="Your username" autocomplete="username">
+        <label for="account-password">Password</label>
+        <input id="account-password" type="password" minlength="8" required placeholder="At least 8 characters" autocomplete="current-password">
+        <button id="account-submit" class="primary-button">Sign in <span aria-hidden="true">→</span></button>
+      </form>
+      <button id="account-mode" class="mode-button" type="button">Create an account</button>
+      <p class="privacy-note">Your account keeps your chats private.</p>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}?v=4"></script>
+</body>
+</html>
