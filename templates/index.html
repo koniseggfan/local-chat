@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080d18">
   <title>Vortex AI — Sign in</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5">
 </head>
 <body class="login-page">
   <main class="auth-layout">
@@ -18,7 +18,7 @@
     <section class="gate-card">
       <p class="eyebrow">WELCOME TO VORTEX</p>
       <h1 id="account-title">Sign in</h1>
-      <p id="account-intro" class="account-intro">Your conversations are saved to your account.</p>
+      <p id="account-intro" class="account-intro" role="status" aria-live="polite">Your conversations are saved to your account.</p>
       <form id="account-form">
         <label for="account-name">Username</label>
         <input id="account-name" maxlength="40" required placeholder="Your username" autocomplete="username">
@@ -30,6 +30,7 @@
       <p class="privacy-note">Your account keeps your chats private.</p>
     </section>
   </main>
-  <script src="{{ url_for('static', filename='app.js') }}?v=4"></script>
+  <script src="{{ url_for('static', filename='app.js') }}?v=5"></script>
 </body>
 </html>
+
