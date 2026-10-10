@@ -21,11 +21,33 @@ if (document.body.classList.contains('login-page')) {
     $('#account-intro').textContent = login
       ? 'Your conversations are saved to your account.'
       : 'Create an account to start chatting with Vortex AI.';
+    $('#account-intro').classList.remove('error');
   };
   mode();
+  $('#account-form').noValidate = true;
   $('#account-mode').addEventListener('click', () => { login = !login; mode(); });
   $('#account-form').addEventListener('submit', async (event) => {
     event.preventDefault();
+    const username = $('#account-name').value.trim();
+    const password = $('#account-password').value;
+    if (!username) {
+      $('#account-intro').textContent = 'Enter your username to continue.';
+      $('#account-intro').classList.add('error');
+      $('#account-name').focus();
+      return;
+    }
+    if (!login && (username.length < 2 || username.length > 40)) {
+      $('#account-intro').textContent = 'Choose a username between 2 and 40 characters.';
+      $('#account-intro').classList.add('error');
+      $('#account-name').focus();
+      return;
+    }
+    if (password.length < 8) {
+      $('#account-intro').textContent = 'Your password must be at least 8 characters.';
+      $('#account-intro').classList.add('error');
+      $('#account-password').focus();
+      return;
+    }
     const button = $('#account-submit');
     button.disabled = true;
     button.textContent = login ? 'Signing in…' : 'Creating account…';
@@ -33,13 +55,14 @@ if (document.body.classList.contains('login-page')) {
       await api(login ? '/api/login' : '/api/register', {
         method: 'POST',
         body: JSON.stringify({
-          username: $('#account-name').value.trim(),
-          password: $('#account-password').value,
+          username,
+          password,
         }),
       });
       window.location.replace('/chat?start=1');
     } catch (error) {
       $('#account-intro').textContent = error.message;
+      $('#account-intro').classList.add('error');
       button.disabled = false;
       mode();
     }
