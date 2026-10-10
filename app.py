@@ -104,7 +104,7 @@ def chat_page():return render_template("chat.html") if uid() else redirect(url_f
 @app.post("/api/register")
 def register():
  d=request.get_json()or{};name=d.get("username","").strip();pw=d.get("password","")
- if not re.fullmatch(r"[\w -]{2,40}",name)or len(pw)<8:return jsonify(error="Use a 2–40 character name and an 8+ character password."),400
+ if not 2<=len(name)<=40 or any(ord(ch)<32 for ch in name) or len(pw)<8:return jsonify(error="Use a username with 2–40 characters and a password with at least 8 characters."),400
  try:
   with con()as c:cur=c.execute("INSERT INTO users(username,password_hash)VALUES(?,?)",(name,generate_password_hash(pw)));i=cur.lastrowid
  except sqlite3.IntegrityError:return jsonify(error="That username is already taken."),409
