@@ -1,7 +1,8 @@
 """Vortex AI chat with server-side accounts and private conversations."""
 import html, json, os, re, sqlite3
+from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import parse_qs, quote, urlparse
 import requests
 from openai import APIError, OpenAI
 from flask import Flask, jsonify, render_template, request, session, redirect, url_for
@@ -24,6 +25,37 @@ def research(q):
   r=web.get("https://en.wikipedia.org/w/api.php",params={"action":"query","list":"search","srsearch":q,"srlimit":3,"format":"json"},timeout=4);r.raise_for_status()
   return [{"title":x["title"],"url":f"https://en.wikipedia.org/wiki/{quote(x['title'].replace(' ','_'))}","snippet":re.sub("<.*?>","",html.unescape(x.get("snippet","")))} for x in r.json()["query"]["search"]]
  except (requests.RequestException,KeyError):return []
+class SearchResultsParser(HTMLParser):
+ def __init__(self):
+  super().__init__();self.results=[];self.current=None;self.capture=None
+ def handle_starttag(self,tag,attrs):
+  attrs=dict(attrs);classes=attrs.get("class","").split()
+  if tag=="a" and "result__a" in classes:
+   self.current={"title":"","url":attrs.get("href","")};self.capture="title"
+  elif self.current and tag in ("a","div") and "result__snippet" in classes:self.capture="snippet"
+ def handle_data(self,data):
+  if self.current and self.capture in ("title","snippet"):
+   self.current[self.capture]=self.current.get(self.capture,"")+data
+ def handle_endtag(self,tag):
+  if self.current and tag=="a" and self.capture=="title":
+   raw=self.current["url"];parsed=urlparse(raw)
+   target=parse_qs(parsed.query).get("uddg",[raw])[0]
+   if target.startswith(("https://","http://")):self.current["url"]=target
+   self.capture=None
+  elif self.current and tag=="div" and self.capture=="snippet":self.capture=None
+  if self.current and self.current.get("title") and self.current.get("url") and self.current.get("snippet"):
+   self.results.append({"title":self.current["title"].strip(),"url":self.current["url"],"snippet":self.current["snippet"].strip()})
+   self.current=None;self.capture=None
+def search_web(q):
+ try:
+  r=web.get("https://html.duckduckgo.com/html/",params={"q":q},timeout=6);r.raise_for_status()
+  parser=SearchResultsParser();parser.feed(r.text)
+  unique=[]
+  for item in parser.results:
+   if item["url"] not in {x["url"] for x in unique}:unique.append(item)
+   if len(unique)==4:break
+  return unique
+ except (requests.RequestException,ValueError):return []
 def respond(q,history=()):
  simple_prefixes=("hi","hello","hey","thanks","thank you","write","draft","brainstorm","translate","rewrite","tell me a joke")
  wiki=[] if q.lower().strip().startswith(simple_prefixes) else research(q)
@@ -50,11 +82,19 @@ def respond(q,history=()):
   for item in wiki:
    if not any(source["url"]==item["url"] for source in sources):sources.append({"title":item["title"],"url":item["url"]})
   return response.output_text.strip() or "I couldn't prepare a reply just now.",sources
- basic={"hi":"Hi! What’s on your mind?","hello":"Hello! How can I help?","help":"I can chat, brainstorm, help you write, explain ideas, and research facts with web search.","thank you":"You’re welcome!","bye":"Bye for now.","tell me a joke":"Why did the computer go to the doctor? It had a virus."}
- if q.lower().strip() in basic:return basic[q.lower().strip()],[]
- if wiki:
-  return ("Vortex AI is waiting for its AI key. Wikipedia found: "+" ".join(item["snippet"] for item in wiki[:2])),[{"title":item["title"],"url":item["url"]} for item in wiki]
- return "Add an OpenAI API key in Render to enable full Vortex AI replies.",[]
+ web_results=search_web(q)
+ sources=[]
+ excerpts=[]
+ for item in web_results:
+  sources.append({"title":item["title"],"url":item["url"]})
+  excerpts.append(f"• {item['title']}: {item['snippet']}")
+ for item in wiki:
+  if item["url"] not in {source["url"] for source in sources}:
+   sources.append({"title":item["title"],"url":item["url"]})
+  if item["snippet"]:excerpts.append(f"• Wikipedia — {item['title']}: {item['snippet']}")
+ if excerpts:
+  return ("I’m using live web results for this answer. I don’t have the AI key needed to summarize them more deeply yet.\n\n"+"\n\n".join(excerpts[:5])),sources
+ return "I couldn’t find web results for that just now. Please try again in a moment. Full AI answers also need an OpenAI API key in the hosting settings.",[]
 @app.get("/")
 def home():return redirect(url_for("chat_page") if uid() else url_for("login_page"))
 @app.get("/login")
@@ -106,3 +146,4 @@ def ask(chat_id):
   c.execute("UPDATE chats SET title=? WHERE id=? AND title='New chat'",(q[:34],chat_id))
  return jsonify(answer=a,sources=s)
 if __name__=="__main__":app.run(host="0.0.0.0",port=int(os.environ.get("PORT",5000)))
+
