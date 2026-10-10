@@ -164,7 +164,7 @@ if (document.body.classList.contains('login-page')) {
       if (!account.ai_enabled) {
         $('.online-pill').classList.add('needs-setup');
         $('.online-pill').innerHTML = '<span></span> AI setup needed';
-        $('.composer-note').textContent = 'Full AI replies need an OpenAI API key in the hosting settings. Wikipedia lookups still work.';
+        $('.composer-note').textContent = 'Web and Wikipedia results are available. Add an OpenAI API key in the hosting settings for full AI answers.';
       }
       if (new URLSearchParams(window.location.search).has('start')) {
         await newChat();
@@ -178,3 +178,4 @@ if (document.body.classList.contains('login-page')) {
     }
   })();
 }
+
