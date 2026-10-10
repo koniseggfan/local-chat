@@ -19,6 +19,7 @@ a{color:inherit}
 .gate-card .eyebrow{margin:0 0 12px}
 .gate-card h1{font:750 2rem/1.2 Manrope,system-ui,sans-serif;letter-spacing:-.04em;margin:0}
 .account-intro{color:#9baac0;line-height:1.6;margin:11px 0 30px}
+.account-intro.error{color:#ffaaa4}
 #account-form{display:grid;gap:10px}
 #account-form label{color:#dce7f8;font-size:.88rem;font-weight:600;margin-top:7px}
 #account-form input{width:100%;height:50px;border:1px solid #293b55;border-radius:12px;background:#0a111d;color:#f4f8ff;padding:0 15px;outline:none;transition:border .18s,box-shadow .18s}
@@ -93,3 +94,4 @@ a{color:inherit}
 @media(max-width:850px){.auth-layout{gap:42px}.sidebar{width:225px;padding:20px 14px}#app{grid-template-columns:225px minmax(0,1fr)}.workspace{padding:0 24px}}
 @media(max-width:640px){.login-page{padding:18px;align-items:start}.auth-layout{grid-template-columns:1fr;gap:20px;max-width:460px;min-height:0;margin:auto}.auth-showcase{padding:12px 4px 0}.auth-logo{width:250px;margin:0 auto}.auth-kicker{margin:22px 0 9px;text-align:center}.auth-showcase h2{font-size:2.1rem;text-align:center}.auth-description{font-size:.9rem;text-align:center;margin:12px auto 0}.gate-card{padding:26px 22px;border-radius:20px}.gate-card h1{font-size:1.75rem}#app{display:block;min-height:100vh}.sidebar{display:none}.workspace{height:100dvh;min-height:520px;padding:0 16px}.topbar{padding:14px 0;gap:12px}.mobile-brand{display:block;flex:0 0 124px}.chat-heading{flex:1}.chat-heading .eyebrow{font-size:.56rem}.chat-heading h1{font-size:1rem}.online-pill{font-size:0;padding:9px}.online-pill span{width:8px;height:8px}.welcome{padding:15px 5px 30px}.welcome-hint{border-radius:13px;line-height:1.4}.message{grid-template-columns:30px minmax(0,1fr);gap:9px}.message.user{grid-template-columns:minmax(0,1fr) 30px}.avatar{width:29px;height:29px;border-radius:10px}.message-body{padding:11px 13px;font-size:.94rem}.sources ul{gap:5px}.sources a{max-width:180px}.composer-wrap{padding-bottom:14px}#question-form{gap:6px;padding:6px}#question{font-size:.95rem;padding:9px 7px}#send-button{min-width:68px;padding:0 10px;font-size:.88rem}.composer-note{font-size:.66rem}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
