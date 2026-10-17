@@ -1,6 +1,6 @@
 # Vortex AI
 
-A branded Vortex AI chat app with private accounts, saved conversations, automatic web and Wikipedia research, and OpenAI-powered answers.
+A branded Vortex AI chat app with private accounts, saved conversations, web and Wikipedia research on every question, related Wikimedia Commons image previews, and OpenAI-powered answers.
 
 ## Run locally
 
@@ -12,7 +12,7 @@ $env:OPENAI_API_KEY = "your-api-key"
 python app.py
 ```
 
-Open `http://127.0.0.1:5000`. Vortex uses `gpt-6-luna` by default and searches the web when current facts or citations will help. Wikipedia excerpts are included as supporting references for research questions. Set `OPENAI_MODEL` to choose another supported model. Without `OPENAI_API_KEY`, Vortex still searches the web and Wikipedia and shows linked result snippets; full AI-generated answers require the key.
+Open `http://127.0.0.1:5000`. Vortex uses `gpt-6-luna` by default and searches the web and Wikipedia for every question. Relevant Wikimedia Commons pictures appear with their source and license when available. Set `OPENAI_MODEL` to choose another supported model. Without `OPENAI_API_KEY`, Vortex still displays live search snippets, links, and Commons pictures; full AI-generated answers require the key.
 
 ## Deploy on Render
 
