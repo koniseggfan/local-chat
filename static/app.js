@@ -74,7 +74,7 @@ if (document.body.classList.contains('login-page')) {
   function makeWelcome() {
     const wrapper = document.createElement('div');
     wrapper.className = 'welcome';
-    wrapper.innerHTML = '<div class="welcome-mark" aria-hidden="true">✦</div><p class="eyebrow">VORTEX AI</p><h2>What’s on your mind?</h2><p>Ask anything, explore an idea, or get help with something you’re working on.</p><div class="welcome-hint"><span aria-hidden="true">⌕</span> Web and Wikipedia sources are checked automatically when useful.</div>';
+    wrapper.innerHTML = '<div class="welcome-mark" aria-hidden="true">✦</div><p class="eyebrow">VORTEX AI</p><h2>What’s on your mind?</h2><p>Ask anything, explore an idea, or get help with something you’re working on.</p><div class="welcome-hint"><span aria-hidden="true">⌕</span> Web and Wikipedia are searched for every question. Related Commons pictures appear when available.</div>';
     return wrapper;
   }
 
@@ -86,12 +86,33 @@ if (document.body.classList.contains('login-page')) {
       article.querySelector('.message-body p').textContent = text;
     } else {
       article.querySelector('.answer-text').textContent = text;
+      const imageBox = article.querySelector('.answer-images');
+      const images = sources.filter((source) => source.type === 'image');
+      if (!images.length) imageBox.remove();
+      images.forEach((source) => {
+        const figure = document.createElement('figure');
+        figure.className = 'answer-image';
+        const link = document.createElement('a');
+        link.href = source.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        const image = document.createElement('img');
+        image.src = source.image_url;
+        image.alt = source.title;
+        image.loading = 'lazy';
+        link.append(image);
+        const caption = document.createElement('figcaption');
+        caption.textContent = `${source.title} · ${source.credit || 'Wikimedia Commons'}${source.license ? ` · ${source.license}` : ''}`;
+        figure.append(link, caption);
+        imageBox.append(figure);
+      });
       const sourceBox = article.querySelector('.sources');
-      if (!sources.length) {
+      const textSources = sources.filter((source) => source.type !== 'image');
+      if (!textSources.length) {
         sourceBox.remove();
       } else {
         const list = sourceBox.querySelector('ul');
-        sources.forEach((source) => {
+        textSources.forEach((source) => {
           const link = document.createElement('a');
           link.href = source.url;
           link.target = '_blank';
@@ -187,7 +208,7 @@ if (document.body.classList.contains('login-page')) {
       if (!account.ai_enabled) {
         $('.online-pill').classList.add('needs-setup');
         $('.online-pill').innerHTML = '<span></span> AI setup needed';
-        $('.composer-note').textContent = 'Web and Wikipedia results are available. Add an OpenAI API key in the hosting settings for full AI answers.';
+        $('.composer-note').textContent = 'Web, Wikipedia, and related pictures are searched automatically. Add an OpenAI API key in the hosting settings for full AI answers.';
       }
       if (new URLSearchParams(window.location.search).has('start')) {
         await newChat();
