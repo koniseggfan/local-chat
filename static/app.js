@@ -70,6 +70,63 @@ if (document.body.classList.contains('login-page')) {
 } else {
   const chat = $('#chat');
   let activeChatId;
+  const defaults = { theme: 'dark', accent: 'blue', textSize: 'medium', compact: false, detail: 'balanced', enterSend: true, images: true, sources: true, autoScroll: true };
+  let preferences;
+  try { preferences = { ...defaults, ...JSON.parse(localStorage.getItem('vortex-settings') || '{}') }; }
+  catch { preferences = { ...defaults }; }
+
+  function applyPreferences() {
+    const theme = preferences.theme === 'system'
+      ? (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+      : preferences.theme;
+    document.body.dataset.theme = theme;
+    document.body.dataset.accent = preferences.accent;
+    document.body.dataset.textSize = preferences.textSize;
+    document.body.dataset.compact = String(preferences.compact);
+    $('#setting-theme').value = preferences.theme;
+    $('#setting-accent').value = preferences.accent;
+    $('#setting-text-size').value = preferences.textSize;
+    $('#setting-compact').checked = preferences.compact;
+    $('#setting-detail').value = preferences.detail;
+    $('#setting-enter-send').checked = preferences.enterSend;
+    $('#setting-images').checked = preferences.images;
+    $('#setting-sources').checked = preferences.sources;
+    $('#setting-autoscroll').checked = preferences.autoScroll;
+  }
+
+  const preferenceControls = {
+    'setting-theme': 'theme', 'setting-accent': 'accent', 'setting-text-size': 'textSize',
+    'setting-compact': 'compact', 'setting-detail': 'detail', 'setting-enter-send': 'enterSend',
+    'setting-images': 'images', 'setting-sources': 'sources', 'setting-autoscroll': 'autoScroll',
+  };
+  Object.entries(preferenceControls).forEach(([id, key]) => {
+    $(`#${id}`).addEventListener('change', (event) => {
+      preferences[key] = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
+      localStorage.setItem('vortex-settings', JSON.stringify(preferences));
+      applyPreferences();
+      if (key === 'images' || key === 'sources') refreshVisibleMessages();
+    });
+  });
+  function refreshVisibleMessages() {
+    chat.querySelectorAll('.message.answer').forEach((article) => {
+      article.querySelector('.answer-images')?.toggleAttribute('hidden', !preferences.images);
+      article.querySelector('.sources')?.toggleAttribute('hidden', !preferences.sources);
+    });
+  }
+  applyPreferences();
+  const settingsDialog = $('#settings-dialog');
+  $('#open-settings').addEventListener('click', () => settingsDialog.showModal());
+  $('#open-settings-mobile').addEventListener('click', () => settingsDialog.showModal());
+  $('#reset-settings').addEventListener('click', () => {
+    preferences = { ...defaults };
+    localStorage.setItem('vortex-settings', JSON.stringify(preferences));
+    applyPreferences();
+    refreshVisibleMessages();
+  });
+  matchMedia('(prefers-color-scheme: light)').addEventListener?.('change', () => {
+    if (preferences.theme === 'system') applyPreferences();
+  });
+  const scrollToLatest = () => { if (preferences.autoScroll) chat.scrollTop = chat.scrollHeight; };
 
   function makeWelcome() {
     const wrapper = document.createElement('div');
@@ -89,6 +146,7 @@ if (document.body.classList.contains('login-page')) {
       const imageBox = article.querySelector('.answer-images');
       const images = sources.filter((source) => source.type === 'image');
       if (!images.length) imageBox.remove();
+      else imageBox.hidden = !preferences.images;
       images.forEach((source) => {
         const figure = document.createElement('figure');
         figure.className = 'answer-image';
@@ -111,6 +169,7 @@ if (document.body.classList.contains('login-page')) {
       if (!textSources.length) {
         sourceBox.remove();
       } else {
+        sourceBox.hidden = !preferences.sources;
         const list = sourceBox.querySelector('ul');
         textSources.forEach((source) => {
           const link = document.createElement('a');
@@ -135,7 +194,7 @@ if (document.body.classList.contains('login-page')) {
     if (!data.messages.length) chat.append(makeWelcome());
     data.messages.forEach((message) => chat.append(makeMessage(message.role, message.text, message.sources)));
     await refreshChats();
-    chat.scrollTop = chat.scrollHeight;
+    scrollToLatest();
   }
 
   async function refreshChats() {
@@ -171,7 +230,7 @@ if (document.body.classList.contains('login-page')) {
 
   function showError(error) {
     chat.append(makeMessage('assistant', error.message || 'Something went wrong. Please try again.'));
-    chat.scrollTop = chat.scrollHeight;
+    scrollToLatest();
   }
 
   $('#question-form').addEventListener('submit', async (event) => {
@@ -184,11 +243,11 @@ if (document.body.classList.contains('login-page')) {
     $('#question').value = '';
     sendButton.disabled = true;
     sendButton.innerHTML = 'Thinking…';
-    chat.scrollTop = chat.scrollHeight;
+    scrollToLatest();
     try {
       const data = await api(`/api/chats/${activeChatId}/ask`, {
         method: 'POST',
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, preferences: { detail: preferences.detail } }),
       });
       chat.append(makeMessage('assistant', data.answer, data.sources));
       await refreshChats();
@@ -197,8 +256,15 @@ if (document.body.classList.contains('login-page')) {
     } finally {
       sendButton.disabled = false;
       sendButton.innerHTML = 'Send <span aria-hidden="true">↑</span>';
-      chat.scrollTop = chat.scrollHeight;
+      scrollToLatest();
       $('#question').focus();
+    }
+  });
+
+  $('#question').addEventListener('keydown', (event) => {
+    if (preferences.enterSend && event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      $('#question-form').requestSubmit();
     }
   });
 
