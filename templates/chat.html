@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080d18">
   <title>Vortex AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=7">
 </head>
 <body class="chat-page">
   <div id="app">
@@ -17,6 +17,7 @@
       <p class="section-label">YOUR CHATS</p>
       <nav id="chat-list" aria-label="Your conversations"></nav>
       <div class="side-bottom">
+        <button id="open-settings" class="settings-button" type="button"><span aria-hidden="true">⚙</span> Settings</button>
         <button id="sign-out" class="sign-out"><span aria-hidden="true">↗</span> Sign out</button>
       </div>
     </aside>
@@ -30,6 +31,7 @@
           <h1 id="chat-title">New chat</h1>
         </div>
         <div class="online-pill"><span></span> Vortex is ready</div>
+        <button id="open-settings-mobile" class="settings-icon" type="button" aria-label="Open settings" title="Settings">⚙</button>
       </header>
       <section id="chat" aria-live="polite" aria-label="Conversation">
         <div class="welcome">
@@ -49,13 +51,33 @@
       </div>
     </main>
   </div>
+  <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+    <form method="dialog" class="settings-panel">
+      <header class="settings-header"><div><p class="eyebrow">MAKE IT YOURS</p><h2 id="settings-title">Settings</h2></div><button class="settings-close" value="close" aria-label="Close settings">×</button></header>
+      <section class="settings-section"><h3>Appearance</h3>
+        <label class="setting-row"><span><b>Color theme</b><small>Choose how Vortex looks</small></span><select id="setting-theme"><option value="dark">Dark</option><option value="light">Light</option><option value="system">Use device setting</option></select></label>
+        <label class="setting-row"><span><b>Accent color</b><small>Buttons and highlights</small></span><select id="setting-accent"><option value="blue">Ocean blue</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="rose">Rose</option></select></label>
+        <label class="setting-row"><span><b>Text size</b><small>Adjust chat readability</small></span><select id="setting-text-size"><option value="small">Small</option><option value="medium">Default</option><option value="large">Large</option></select></label>
+        <label class="setting-row"><span><b>Compact layout</b><small>Fit more messages on screen</small></span><input id="setting-compact" type="checkbox"></label>
+      </section>
+      <section class="settings-section"><h3>Chat and answers</h3>
+        <label class="setting-row"><span><b>Answer detail</b><small>Preferred answer length</small></span><select id="setting-detail"><option value="balanced">Balanced</option><option value="concise">Short and concise</option><option value="detailed">More detailed</option></select></label>
+        <label class="setting-row"><span><b>Enter to send</b><small>Use Shift + Enter for a new line</small></span><input id="setting-enter-send" type="checkbox"></label>
+        <label class="setting-row"><span><b>Show web pictures</b><small>Display related Commons images</small></span><input id="setting-images" type="checkbox"></label>
+        <label class="setting-row"><span><b>Show source links</b><small>Keep references under each answer</small></span><input id="setting-sources" type="checkbox"></label>
+        <label class="setting-row"><span><b>Auto-scroll to new messages</b><small>Keep the latest reply in view</small></span><input id="setting-autoscroll" type="checkbox"></label>
+      </section>
+      <p class="settings-note">Vortex will keep searching the web and Wikipedia for every question. These preferences are saved on this device.</p>
+      <footer class="settings-footer"><button id="reset-settings" class="reset-settings" type="button">Reset to defaults</button><button class="save-settings" value="close">Done</button></footer>
+    </form>
+  </dialog>
   <template id="user-template">
     <article class="message user"><div class="avatar user-avatar">You</div><div class="message-body"><p></p></div></article>
   </template>
   <template id="answer-template">
     <article class="message answer"><div class="avatar ai-avatar">✦</div><div class="message-body"><p class="answer-text"></p><div class="answer-images" aria-label="Related images"></div><div class="sources"><b>Sources</b><ul></ul></div></div></article>
   </template>
-  <script src="{{ url_for('static', filename='app.js') }}?v=6"></script>
+  <script src="{{ url_for('static', filename='app.js') }}?v=7"></script>
 </body>
 </html>
 
