@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080d18">
   <title>Vortex AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=5">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=6">
 </head>
 <body class="chat-page">
   <div id="app">
@@ -37,7 +37,7 @@
           <p class="eyebrow">VORTEX AI</p>
           <h2>What’s on your mind?</h2>
           <p>Ask anything, explore an idea, or get help with something you’re working on.</p>
-          <div class="welcome-hint"><span aria-hidden="true">⌕</span> Web and Wikipedia sources are checked automatically when useful.</div>
+          <div class="welcome-hint"><span aria-hidden="true">⌕</span> Web and Wikipedia are searched for every question. Related Commons pictures appear when available.</div>
         </div>
       </section>
       <div class="composer-wrap">
@@ -45,7 +45,7 @@
           <textarea id="question" rows="1" maxlength="1000" required placeholder="Message Vortex AI…" aria-label="Message Vortex AI"></textarea>
           <button id="send-button" type="submit" aria-label="Send message">Send <span aria-hidden="true">↑</span></button>
         </form>
-        <p class="composer-note">Prompts are sent to OpenAI when AI replies are enabled. Check important information with the sources.</p>
+        <p class="composer-note">Web and Wikipedia are searched for every question. Check important information with the sources.</p>
       </div>
     </main>
   </div>
@@ -53,9 +53,9 @@
     <article class="message user"><div class="avatar user-avatar">You</div><div class="message-body"><p></p></div></article>
   </template>
   <template id="answer-template">
-    <article class="message answer"><div class="avatar ai-avatar">✦</div><div class="message-body"><p class="answer-text"></p><div class="sources"><b>Sources</b><ul></ul></div></div></article>
+    <article class="message answer"><div class="avatar ai-avatar">✦</div><div class="message-body"><p class="answer-text"></p><div class="answer-images" aria-label="Related images"></div><div class="sources"><b>Sources</b><ul></ul></div></div></article>
   </template>
-  <script src="{{ url_for('static', filename='app.js') }}?v=5"></script>
+  <script src="{{ url_for('static', filename='app.js') }}?v=6"></script>
 </body>
 </html>
 
